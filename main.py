@@ -1,27 +1,27 @@
-# you may need to run this command in your local env: `pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
+# you may need to run this command in your local env: `!pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
 from google.colab import auth
 from googleapiclient.discovery import build
 import json
 
-# Authenticate with Google (popup should appear)
+# Authenticate with Google (popup will appear)
 auth.authenticate_user()
 
 # Set up access to the Sheets API
 def get_sheet_data(spreadsheet_id, sheet_name):
     service = build('sheets', 'v4')
 
-    # Get cell values (computed)
+    range_notation = f"{sheet_name}!_:_"  # Define range here or it will error
+
     result_vals = service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
-        range=sheet_name,
+        range=range_notation,
         valueRenderOption='UNFORMATTED_VALUE'
     ).execute()
     values = result_vals.get('values', [])
 
-    # Get formulas (if present)
     result_formulas = service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
-        range=sheet_name,
+        range=range_notation,
         valueRenderOption='FORMULA'
     ).execute()
     formulas = result_formulas.get('values', [])
@@ -42,8 +42,8 @@ def to_cell_dict(values, formulas):
     return data
 
 # Paste your Sheet ID and Sheet Name here
-SPREADSHEET_ID = '_'  # e.g., '1fVNh...yourID...AiM'
-SHEET_NAME = 'Sheet1'  # e.g., 'Budget2025'
+SPREADSHEET_ID = '_'  # the long string of characters after 'spreadsheets/d/'
+SHEET_NAME = 'mySheet'  # this is the tab at the bottom'
 
 # Fetch and print data
 values, formulas = get_sheet_data(SPREADSHEET_ID, SHEET_NAME)
